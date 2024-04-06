@@ -25,14 +25,28 @@ defmodule GhWc do
   end
 
   defp help(_) do
-    IO.puts(:stderr, :argparse.help(cli(), %{progname: @progname}))
+    exit(:argparse.help(cli(), %{progname: @progname}), 0)
   end
 
   # Create a new git branch for the issue.
   defp do_new_change(%{issue: gh_issue}) do
-    GH.exec(["issue", "view", Integer.to_string(gh_issue |> dbg())])
-    |> dbg()
+    gh_issue = Integer.to_string(gh_issue)
 
-    :ok
+    with {:ok, _} <- GH.exec(["issue", "view", gh_issue]) do
+      {_, exit_code} =
+        System.cmd(System.find_executable("git"), ["switch", "-c", "iss-#{gh_issue}"],
+          into: IO.stream()
+        )
+
+      exit("", exit_code)
+    else
+      {:error, reason} ->
+        exit(reason, 2)
+    end
+  end
+
+  defp exit(message, exit_code) do
+    IO.puts(:stderr, message)
+    System.halt(exit_code)
   end
 end
