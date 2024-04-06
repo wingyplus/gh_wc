@@ -1,0 +1,3 @@
+%{
+  "ghex": {:git, "https://github.com/wingyplus/ghex.git", "3b7726e08d83b16d6e89800fe6b8f8948ecd2df4", []},
+}
